@@ -39,10 +39,13 @@ class GoogleCalendarService implements GoogleCalendarInterface
             if (!$accessToken) {
                 return redirect()->route('auth.google');
             }
+            $timeMax = "2025-12-31T23:59:59Z";
             $this->setAccessToken($accessToken);
             $events = $this->service->events->listEvents('primary', [
                 'orderBy' => 'startTime',
+                'timeMin' => date('Y-m-d') . 'T00:00:00Z',
                 'singleEvents' => true,
+                'timeMax' => $timeMax,
             ]);
             return $events->getItems();
         } catch (Exception $e) {

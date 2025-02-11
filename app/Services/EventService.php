@@ -18,18 +18,24 @@ class EventService implements EventInterface
         $client->setAccessToken($token);
         $service = new Google_Service_Calendar($client);
 
-        $startTime = date('c', strtotime($data["start"]));
-        $endTime = date('c', strtotime($data["end"]));
+        $startTime = date('Y-m-d', strtotime($data["start"]));
+        $endTime = date('Y-m-d', strtotime($data["end"]));
+
 
         $eventData = new Google_Service_Calendar_Event([
             'summary' => $data['summary'],
             'description' => $data['description'],
+            'visibility' => 'public',
+            'transparency' => 'transparent',
+            'sendNotifications' => false,
+            'eventType' => 'default',
+            'reminders' => ['useDefault' => true],
             'start' => [
-                'dateTime' => $startTime,   // Event start date and time
+                'date' => $startTime,   // Event start date and time
                 'timeZone' => 'Asia/Yerevan',      // Adjust the time zone as needed
             ],
             'end' => [
-                'dateTime' => $endTime,     // Event end date and time
+                'date' => $endTime,     // Event end date and time
                 'timeZone' => 'Asia/Yerevan',      // Adjust the time zone as needed
             ],
         ]);

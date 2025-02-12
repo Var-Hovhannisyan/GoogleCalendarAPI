@@ -4,9 +4,14 @@
     <div class="p-6 bg-white shadow-md max-w-xl mx-auto rounded-lg flex items-center flex-col">
         <div class="flex justify-between w-full">
             <h1 class="text-2xl self-start font-bold"><span class="text-blue-600">{{$event['title']}}</span></h1>
-            <button class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded">
-                Delete
-            </button>
+            <form action="{{route('events.delete', ['eventId' => $event['id']] )}}" method="POST">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded">
+                    Delete
+                </button>
+            </form>
+
         </div>
         <form action="{{ route('events.update', ['eventId' => $event['id']]) }}" method="POST" class="w-full max-w-lg">
             @csrf

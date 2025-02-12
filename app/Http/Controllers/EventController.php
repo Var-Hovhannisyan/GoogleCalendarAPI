@@ -57,10 +57,18 @@ class EventController extends Controller
             'description' => $request->description,
             'start' => $request->start,
             'end' => $request->end,
-            'colorId' => $request->colorId ? $request->color : null,
+            'colorId' => $request->colorId ? $request->colorId : null,
         ];
 
         $response = $this->eventService->updateEvent($data);
         return redirect()->route('dashboard')->with('message', $response['message']);
+    }
+
+    public function delete(Request $request) {
+        $response = $this->eventService->deleteEvent($request->eventId);
+        if($response->getStatusCode() == 401) {
+            return redirect()->route('logout');
+        }
+        return redirect()->route('dashboard')->with('message', 'Deleted Event successfully');
     }
 }

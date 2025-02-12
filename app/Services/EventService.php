@@ -4,13 +4,13 @@ namespace App\Services;
 
 use App\Interfaces\EventInterface;
 use App\Interfaces\GoogleCalendarInterface;
+use Carbon\Carbon;
 use Google\Exception;
 use Google\Service\Calendar;
 use Google_Client;
 use Google_Service_Calendar;
 use Google_Service_Calendar_Event;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class EventService implements EventInterface
@@ -51,11 +51,11 @@ class EventService implements EventInterface
             'colorId' => $data['colorId'],
             'start' => [
                 'date' => $startTime,   // Event start date and time
-                'timeZone' => 'Asia/Yerevan',      // Adjust the time zone as needed
+                'timeZone' => 'UTC',      // Adjust the time zone as needed
             ],
             'end' => [
                 'date' => $endTime,     // Event end date and time
-                'timeZone' => 'Asia/Yerevan',      // Adjust the time zone as needed
+                'timeZone' => 'UTC',      // Adjust the time zone as needed
             ],
         ]);
 
@@ -72,19 +72,27 @@ class EventService implements EventInterface
             $client->setAccessToken($token);
             $service = new Google_Service_Calendar($client);
 
+            if (!isset($data['start']) || !isset($data['end'])) {
+                throw new \Exception("Event start or end time is missing.");
+            }
+
             $event = $service->events->get('primary', $data['id']);
 
             $eventStart = new Calendar\EventDateTime();
             $eventStart->setDateTime(Carbon::parse($data['start'])->toRfc3339String());
 
             $eventEnd = new Calendar\EventDateTime();
-            $eventEnd->setDateTime(Carbon::parse($data['end'])->toRfc3339String());
+            $eventEnd->setDateTime(Carbon::parse($data['end'])->timezone('UTC')->toRfc3339String());
 
             $event->setSummary($data['title']);
             $event->setDescription($data['description']);
             $event->setStart($eventStart);
             $event->setEnd($eventEnd);
             $event->setColorId($data['colorId']);
+
+            if (Carbon::parse($data['start'])->greaterThanOrEqualTo(Carbon::parse($data['end']))) {
+                throw new \Exception("Event start time must be before end time.");
+            }
 
             $service->events->update('primary', $event->getId(), $event);
 
@@ -101,14 +109,27 @@ class EventService implements EventInterface
         }
     }
 
-    public function deleteEvent()
+    public function deleteEvent($eventId): JsonResponse
     {
-        // TODO: Implement deleteEvent() method.
+        try {
+            $accessToken = session('access_token');
+            if (!$accessToken) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+            $this->googleCalendarService->setAccessToken($accessToken);
+            $this->service->events->delete('primary', $eventId);
+            return response()->json(['message' => 'Event deleted successfully!']);
+        } catch (Exception $e) {
+            Log::error('Google API Error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => $e->getMessage()
+            ]);
+        }
+
     }
 
     public function getServiceEvents()
     {
-
         try {
             $accessToken = session('access_token');
             if (!$accessToken) {
@@ -124,7 +145,7 @@ class EventService implements EventInterface
                 'timeMin' => $startOfYear->format(\DateTime::RFC3339),
                 'timeMax' => $endOfYear->format(\DateTime::RFC3339),
                 'eventTypes' => null,
-                'timeZone' => 'Asia/Yerevan',
+                'timeZone' => 'UTC',
             ]);
             return $events->getItems();
         } catch (Exception $e) {
@@ -149,8 +170,8 @@ class EventService implements EventInterface
         return [
             'id' => $event->getId(),
             'title' => $event->getSummary(),
-            'start' => $event->getStart()->getDate() ?? $event->getStart()->getDateTime(),
-            'end' => $event->getEnd()->getDate() ?? $event->getEnd()->getDateTime(),
+            'start' => Carbon::parse($event->getStart()->getDate() ?? $event->getStart()->getDateTime())->timezone('UTC')->toRfc3339String(),
+            'end' => Carbon::parse($event->getEnd()->getDate() ?? $event->getEnd()->getDateTime())->timezone('UTC')->toRfc3339String(),
             'description' => $event->getDescription(),
             'location' => $event->getLocation(),
             'color' => $this->getEventColor($event->getColorId()),

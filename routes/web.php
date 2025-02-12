@@ -20,5 +20,6 @@ Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
 Route::get('/events/{eventId}/edit', [EventController::class, 'edit'])->name('events.edit');
 Route::put('/events/{eventId}/update', [EventController::class, 'update'])->name('events.update');
+Route::delete('/events/{eventId}/delete', [EventController::class, 'delete'])->name('events.delete');
 
 Route::get('/colors', [EventController::class, 'colors'])->name('colors');

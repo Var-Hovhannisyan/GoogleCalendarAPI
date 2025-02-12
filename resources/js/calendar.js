@@ -1,12 +1,25 @@
 import {Calendar} from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid'; // Add this line
+import timeGridPlugin from '@fullcalendar/timegrid'
 
 document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar');
     const calendar = new Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        themeSystem: 'bootstrap5',
+        eventTimeFormat: { // like '14:30:00'
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+            meridiem: false
+        },
+        plugins: [dayGridPlugin, timeGridPlugin],
+        headerToolbar: {
+            start: 'dayGridMonth,timeGridWeek,timeGridDay',
+            center: 'title',
+            end: 'prevYear,prev,next,nextYear'
+        },
         timeZone: 'UTC',
-        plugins: [dayGridPlugin],
         eventClick: function (e) {
             const eventId = e.event.id;
             window.location.href = `/events/${eventId}/edit`;
@@ -15,14 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
             {
                 url: '/events',
                 failure: function (e) {
-                    debugger;
                     alert('there was an error while fetching events!');
                 },
             }
         ],
-        eventSourceSuccess: function (rawEvents, response) {
-            console.log(response, rawEvents)
-        },
         eventDidMount: function (info) {
             if (info.event.extendedProps.color) {
                 info.el.style.backgroundColor = info.event.extendedProps.color.background;

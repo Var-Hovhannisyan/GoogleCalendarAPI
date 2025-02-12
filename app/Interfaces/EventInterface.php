@@ -8,7 +8,7 @@ interface EventInterface
 {
     public function createEvent($data);
     public function updateEvent($data);
-    public function deleteEvent();
+    public function deleteEvent($eventId): JsonResponse;
 
     public function getServiceEvents();
     public function getFormattedEvents(): ?array;

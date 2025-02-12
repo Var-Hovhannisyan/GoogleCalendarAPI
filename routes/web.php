@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GoogleCalendarController;
@@ -19,3 +18,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/events', [EventController::class, 'index']);
 Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+Route::get('/events/{eventId}/edit', [EventController::class, 'edit'])->name('events.edit');
+Route::put('/events/{eventId}/update', [EventController::class, 'update'])->name('events.update');
+
+Route::get('/colors', [EventController::class, 'colors'])->name('colors');

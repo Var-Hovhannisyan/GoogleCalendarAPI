@@ -1,16 +1,17 @@
 <?php
+
 namespace App\Services;
 
 use App\Interfaces\GoogleCalendarInterface;
-use Google\Exception;
+use Illuminate\Http\JsonResponse;
 use Google\Service\Calendar;
-use Google_Service_Calendar;
 use Google_Client;
+use Google_Service_Calendar;
 
 class GoogleCalendarService implements GoogleCalendarInterface
 {
     protected Google_Client $client;
-    protected Calendar $service;
+    public Calendar $service;
 
     public function __construct()
     {
@@ -32,24 +33,5 @@ class GoogleCalendarService implements GoogleCalendarInterface
         $this->service = new Google_Service_Calendar($this->client);
     }
 
-    public function getEvents()
-    {
-        try {
-            $accessToken = session('access_token');
-            if (!$accessToken) {
-                return redirect()->route('auth.google');
-            }
-            $timeMax = "2025-12-31T23:59:59Z";
-            $this->setAccessToken($accessToken);
-            $events = $this->service->events->listEvents('primary', [
-                'orderBy' => 'startTime',
-                'timeMin' => date('Y-m-d') . 'T00:00:00Z',
-                'singleEvents' => true,
-                'timeMax' => $timeMax,
-            ]);
-            return $events->getItems();
-        } catch (Exception $e) {
-            return 'Error fetching events: ' . $e->getMessage();
-        }
-    }
+
 }

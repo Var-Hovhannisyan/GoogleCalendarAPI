@@ -1,4 +1,4 @@
-<div class="relative z-10 hidden" id="exampleModal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<div class="relative z-10 hidden" id="{{$id}}" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
     <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
         <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -22,6 +22,9 @@
                                     <textarea name="description" id="event-description-input"
                                               class="border-2 border-secondary p-3 border-blue-700 outline-blue-500"></textarea>
                                 </p>
+                            </div>
+                            <div class="mt-2">
+                                <x-colors_select/>
                             </div>
                             <div class="mt-2">
                                 <label for="">Start time</label>

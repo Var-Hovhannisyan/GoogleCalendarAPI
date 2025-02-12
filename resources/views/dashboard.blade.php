@@ -8,7 +8,8 @@
     </div>
 
     <x-modal
-        title="Event details"
+        id="new-event"
+        title="New Event"
         deactivateButtonText="Save"
         cancelButtonText="No, Cancel"
     />

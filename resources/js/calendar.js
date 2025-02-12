@@ -1,38 +1,44 @@
-import { Calendar } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';  // Add this line
+import {Calendar} from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid'; // Add this line
 
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new Calendar(calendarEl, {
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new Calendar(calendarEl, {
         initialView: 'dayGridMonth',
+        timeZone: 'UTC',
         plugins: [dayGridPlugin],
         eventClick: function (e) {
-            // openModal(e);
+            const eventId = e.event.id;
+            window.location.href = `/events/${eventId}/edit`;
         },
         eventSources: [
             {
                 url: '/events',
-                method: 'GET',
-                editable: true,
-                success: function () {
-                },
-                failure: function() {
+                failure: function (e) {
+                    debugger;
                     alert('there was an error while fetching events!');
                 },
             }
-        ]
-
+        ],
+        eventSourceSuccess: function (rawEvents, response) {
+            console.log(response, rawEvents)
+        },
+        eventDidMount: function (info) {
+            if (info.event.extendedProps.color) {
+                info.el.style.backgroundColor = info.event.extendedProps.color.background;
+            }
+        }
     });
     calendar.render();
 });
 
-var newEventBtn = document.getElementById('new-event-btn');
+const newEventBtn = document.getElementById('new-event-btn');
 newEventBtn.addEventListener('click', function () {
     openModal();
 })
 
 function openModal(e) {
-    var modal = document.getElementById('exampleModal');
+    const modal = document.getElementById('new-event');
     // var eventTitle = document.getElementById('event-title-input');
     // eventTitle.value = e.event.title;
     // var eventDescription = document.getElementById('event-description-input');
@@ -40,10 +46,14 @@ function openModal(e) {
     modal.classList.remove('hidden');
 }
 
-// Example to close the modal
 function closeModal() {
-    var modal = document.getElementById('exampleModal');
+    const modal = document.getElementById('new-event');
     modal.classList.add('hidden');
 }
+function isValidDate(dateStr) {
+    const date = new Date(dateStr);
+    return !isNaN(date.getTime()); // Valid if it's a real date
+}
+
 
 document.getElementById('modal-cancel-button').addEventListener('click', closeModal);
